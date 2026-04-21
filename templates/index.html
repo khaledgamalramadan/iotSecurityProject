@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Secure IoT Communication Simulator</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+  <link rel="stylesheet" href="./style.css" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@400;600;700&family=Exo+2:wght@300;400;600&display=swap"
+    rel="stylesheet">
+</head>
+
+<body>
+
+  <!-- ═══════════════════════════════════════════════════════ HEADER -->
+  <header class="top-bar">
+    <div class="top-bar__logo">
+      <span class="logo-icon">⬡</span>
+      <span class="logo-text">SecureIoT <em>Hybrid Encryption Simulator</em></span>
+    </div>
+    <div class="top-bar__badges">
+      <span class="badge">AES-256</span>
+      <span class="badge">RSA-2048</span>
+      <span class="badge badge--green" id="statusBadge">● SECURE</span>
+    </div>
+  </header>
+
+  <!-- ═══════════════════════════════════════════════════════ MAIN LAYOUT -->
+  <main class="simulator">
+
+    <!-- ─── LEFT: AHMED ──────────────────────────────────────────── -->
+    <section class="node node--left" id="nodeAhmed">
+      <div class="node__header">
+        <div class="node__avatar">
+          <div class="avatar-ring"></div>
+          <div class="avatar-inner">A</div>
+          <div class="avatar-pulse"></div>
+        </div>
+        <div class="node__info">
+          <h2>Ahmed</h2>
+          <p>IoT Node · Sender</p>
+        </div>
+        <div class="node__signal">
+          <span></span><span></span><span></span>
+        </div>
+      </div>
+
+      <!-- Chat bubbles appear here -->
+      <div class="chat-window" id="chatAhmed"></div>
+
+      <!-- Input area -->
+      <div class="input-area" id="inputAhmed">
+        <input type="text" id="msgInput" placeholder="Type a message…" autocomplete="off" />
+        <button id="sendBtn" onclick="sendMessage()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="22" y1="2" x2="11" y2="13"></line>
+            <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+          </svg>
+          Send
+        </button>
+      </div>
+    </section>
+
+    <!-- ─── MIDDLE: TRANSMISSION LANE ────────────────────────────── -->
+    <section class="transmission-lane" id="lane">
+      <div class="lane__label lane__label--top">Encrypted Channel</div>
+
+      <!-- Animated packet travels here -->
+      <div class="lane__track">
+        <div class="lane__line"></div>
+        <div class="data-packet" id="dataPacket">
+          <div class="packet-icon">🔒</div>
+          <div class="packet-text" id="packetText">AES+RSA</div>
+        </div>
+      </div>
+
+      <!-- Hacker icon in the middle -->
+      <div class="hacker-node" id="hackerNode">
+        <div class="hacker-avatar">💀</div>
+        <div class="hacker-label">Interceptor</div>
+        <div class="hacker-bubble" id="hackerBubble">
+          <span id="hackerText">Waiting…</span>
+        </div>
+      </div>
+
+      <div class="lane__label lane__label--bottom">TLS / IoT Channel</div>
+    </section>
+
+    <!-- ─── RIGHT: KHALED ──────────────────────────────────────────── -->
+    <section class="node node--right" id="nodeKhaled">
+      <div class="node__header">
+        <div class="node__signal node__signal--right">
+          <span></span><span></span><span></span>
+        </div>
+        <div class="node__info node__info--right">
+          <h2>Khaled</h2>
+          <p>IoT Node · Receiver</p>
+        </div>
+        <div class="node__avatar">
+          <div class="avatar-ring"></div>
+          <div class="avatar-inner avatar-inner--right">K</div>
+          <div class="avatar-pulse"></div>
+        </div>
+      </div>
+
+      <!-- Chat bubbles appear here -->
+      <div class="chat-window" id="chatKhaled"></div>
+
+      <!-- Reply area (shown after first message received) -->
+      <div class="input-area input-area--right hidden" id="inputKhaled">
+        <button id="replyBtn" onclick="sendReply()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="9 14 4 9 9 4"></polyline>
+            <path d="M20 20v-7a4 4 0 0 0-4-4H4"></path>
+          </svg>
+          Reply
+        </button>
+        <input type="text" id="replyInput" placeholder="Type reply…" autocomplete="off" />
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ═══════════════════════════════════════════════════════ DETAILS PANEL -->
+  <div class="details-toggle">
+    <button id="toggleDetails" onclick="togglePanel()">
+      <span>⚙</span> Show Encryption Details
+    </button>
+  </div>
+
+  <div class="details-panel hidden" id="detailsPanel">
+    <div class="details-panel__header">
+      <h3>🔐 Encryption Steps</h3>
+      <button class="close-btn" onclick="togglePanel()">✕</button>
+    </div>
+    <div class="details-grid">
+      <div class="detail-card" id="stepOriginal">
+        <div class="detail-card__num">01</div>
+        <div class="detail-card__title">Original Message</div>
+        <div class="detail-card__value" id="valOriginal">—</div>
+      </div>
+      <div class="detail-card" id="stepCipher">
+        <div class="detail-card__num">02</div>
+        <div class="detail-card__title">AES-256 Ciphertext</div>
+        <div class="detail-card__value mono" id="valCipher">—</div>
+      </div>
+      <div class="detail-card" id="stepIV">
+        <div class="detail-card__num">03</div>
+        <div class="detail-card__title">Initialization Vector (IV)</div>
+        <div class="detail-card__value mono" id="valIV">—</div>
+      </div>
+      <div class="detail-card" id="stepKey">
+        <div class="detail-card__num">04</div>
+        <div class="detail-card__title">RSA Encrypted AES Key</div>
+        <div class="detail-card__value mono" id="valKey">—</div>
+      </div>
+      <div class="detail-card detail-card--success" id="stepDecrypted">
+        <div class="detail-card__num">05</div>
+        <div class="detail-card__title">Decrypted Message</div>
+        <div class="detail-card__value" id="valDecrypted">—</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════ AUTO MODE -->
+  <div class="auto-controls">
+    <button id="autoBtn" onclick="startAutoMode()">▶ Auto Demo</button>
+    <button id="resetBtn" onclick="resetChat()">↺ Reset</button>
+  </div>
+
+  <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+
+</html>
